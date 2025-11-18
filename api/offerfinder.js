@@ -4,7 +4,14 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const message = body.message;
+    const providedKey = body.privateKey; // sent from client
 
+    // 1. Validate access key BEFORE doing anything else
+    if (!providedKey || providedKey !== process.env.PRIVATE_ACCESS_KEY) {
+      return new Response(JSON.stringify({ error: "Access Denied" }), { status: 403 });
+    }
+
+    // 2. Validate message
     if (!message) {
       return new Response(JSON.stringify({ error: "Missing message" }), { status: 400 });
     }
@@ -13,7 +20,7 @@ export async function POST(req) {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    // FIXED — new OpenAI syntax
+    // 3. OpenAI response
     const completion = await client.chat.completions.create({
       model: "gpt-4.1",
       messages: [

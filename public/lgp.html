@@ -93,18 +93,22 @@
 </style>
 
 <script>
-// --- PRIVATE ACCESS GATE (Key = gopackgo76!) --- //
+// ---- FRONTEND KEY EXTRACTION ----
+// We pull the key from the URL but DO NOT store the real key here.
+// Backend will verify this key against the environment variable.
+let userProvidedKey = null;
+
 document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
-    const key = params.get("key");
-    const validKey = "gopackgo76!";
+    userProvidedKey = params.get("key");
 
-    if (key !== validKey) {
+    // If no key included in URL at all → block immediately
+    if (!userProvidedKey) {
         document.body.innerHTML = `
           <div class="denied">
             <h2>Access Restricted</h2>
-            <p>This AI tool is currently in private testing.</p>
-            <p>Please use the authorized access link that includes your private key.</p>
+            <p>This AI tool is in private testing.</p>
+            <p>Your link is missing the required access key.</p>
           </div>
         `;
     }
@@ -142,6 +146,10 @@ Before we proceed, I need one required selection:
 </div>
 
 <script>
+// ----------------------
+// FRONTEND CHAT LOGIC
+// ----------------------
+
 document.getElementById("send-btn").addEventListener("click", sendMessage);
 document.getElementById("user-input").addEventListener("keypress", function(e) {
     if (e.key === "Enter") sendMessage();
@@ -158,11 +166,21 @@ function sendMessage() {
     fetch("/api/offerfinder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({
+            message: text,
+            privateKey: userProvidedKey   // Send URL key to backend
+        })
     })
     .then(res => res.json())
     .then(data => {
+        if (data.error) {
+            addMessage("❌ Access denied: " + data.error, "bot");
+            return;
+        }
         addMessage(data.output, "bot");
+    })
+    .catch(() => {
+        addMessage("❌ Error contacting backend API.", "bot");
     });
 }
 
