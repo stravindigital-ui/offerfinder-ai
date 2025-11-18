@@ -1,8 +1,7 @@
 {
-  "version": 3,
   "functions": {
     "api/offerfinder.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20"
     }
   }
 }
