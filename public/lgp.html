@@ -89,6 +89,21 @@
     </div>
 
     <script>
+
+    // 🔥 INTRO MESSAGE ON LOAD
+    document.addEventListener("DOMContentLoaded", () => {
+        addMessage(
+            "🔥 Welcome to Bradley Trede’s Personal Prospecting Engine 🔥\n" +
+            "Where ideas become opportunities — and opportunities become income.\n\n" +
+            "Before we dive in, I need to ask one mandatory question:\n\n" +
+            "Which type of opportunities would you like me to uncover today?\n" +
+            "👉 B2B Service Opportunities\n" +
+            "or\n" +
+            "👉 Product Reseller Opportunities?",
+            "bot"
+        );
+    });
+
     async function sendMessage() {
         const input = document.getElementById("user-input");
         const text = input.value.trim();
@@ -111,7 +126,6 @@
 
             removeThinking();
 
-            // Backend returns: { output: "Hello!" }
             if (data?.output) {
                 addMessage(data.output, "bot");
             } else if (data?.message) {
@@ -137,7 +151,6 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    // Shows “Thinking…” bubble
     function addThinking() {
         const container = document.getElementById("chat-container");
         const div = document.createElement("div");
@@ -148,7 +161,6 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    // Remove thinking bubble
     function removeThinking() {
         const thinking = document.getElementById("thinking");
         if (thinking) thinking.remove();
@@ -158,6 +170,7 @@
     document.getElementById("user-input").addEventListener("keypress", function (e) {
         if (e.key === "Enter") sendMessage();
     });
+
     </script>
 
 </body>
