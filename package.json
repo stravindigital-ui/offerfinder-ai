@@ -1,8 +1,8 @@
 {
-  "functions": {
-    "api/*.js": {
-      "runtime": "edge"
-    }
+  "name": "offerfinder-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "openai": "4.73.0"
   }
 }
-
