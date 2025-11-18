@@ -1,45 +1,34 @@
-export const config = {
-  runtime: "edge",
-};
+import OpenAI from "openai";
 
-export default async function handler(request) {
+export async function POST(req) {
   try {
-    const body = await request.json();
-
-    const { message } = body;
+    const { message } = await req.json();
 
     if (!message) {
       return new Response(
-        JSON.stringify({ error: "Missing 'message' in request body" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Missing `message` in request body" }),
+        { status: 400 }
       );
     }
 
-    const openaiRes = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4.1",
-        input: message,
-        agent_id: "asst_bLKR93tzFbW6qVP3xDENnrcU"
-      }),
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const data = await openaiRes.json();
-
-    return new Response(JSON.stringify(data), {
-      status: openaiRes.status,
-      headers: { "Content-Type": "application/json" },
+    const response = await client.responses.create({
+      model: "gpt-4.1",
+      agent: process.env.OFFERFINDER_AGENT_ID,  // Agent ID here
+      input: message,
     });
 
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify(response.output_text), {
+      status: 200,
+    });
+
+  } catch (err) {
+    console.error("OfferFinder API Error:", err);
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    });
   }
 }
-
