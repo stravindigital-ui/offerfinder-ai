@@ -1,31 +1,34 @@
 import OpenAI from "openai";
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
-
-  const { message } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ error: "Missing message" });
-  }
-
+export async function POST(req) {
   try {
+    const body = await req.json();
+    const message = body.message;
+
+    if (!message) {
+      return new Response(JSON.stringify({ error: "Missing message" }), { status: 400 });
+    }
+
     const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    const response = await client.responses.create({
+    // FIXED — new OpenAI syntax
+    const completion = await client.chat.completions.create({
       model: "gpt-4.1",
-      agent: process.env.OFFERFINDER_AGENT_ID,
-      input: message,
+      messages: [
+        { role: "user", content: message }
+      ],
     });
 
-    return res.status(200).json({ reply: response.output_text });
+    const output = completion.choices[0].message.content;
+
+    return new Response(JSON.stringify({ output }), { status: 200 });
 
   } catch (err) {
-    console.error("OfferFinder API Error:", err);
-    return res.status(500).json({ error: err.message });
+    console.error("OfferFinder Error:", err);
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    });
   }
 }
