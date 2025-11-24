@@ -22,7 +22,7 @@ export async function POST(req) {
 
     // 3. OpenAI response
     const completion = await client.chat.completions.create({
-      model: "gpt-4.1",
+      model: "gpt-5.1",
       messages: [
         { role: "user", content: message }
       ],
